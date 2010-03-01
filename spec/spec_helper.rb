@@ -1,11 +1,9 @@
 require 'spec'
 require 'spec/autorun'
+Dir[File.dirname(__FILE__) + '/../src/**/*.rb'].each {|file| require file }
 
 Spec::Runner.configure do |config|
 
-  # Uncomment-out the next line if you want to see test data in the db.
-  #config.use_transactional_fixtures = false
-  
 end
 
 

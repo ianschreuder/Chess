@@ -1,8 +1,5 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 require File.dirname(__FILE__) + '/../spec_utils'
-require File.dirname(__FILE__) + '/../../src/components/game'
-require File.dirname(__FILE__) + '/../../src/components/player'
-require File.dirname(__FILE__) + '/../../src/components/board'
 
 describe "Game" do
   
@@ -23,6 +20,18 @@ describe "Game" do
   it "should have 32 pieces on a fresh board" do
     g = Game.new(@player1, @player2)
     g.board.pieces.length.should == 32
+  end
+  
+  it "should know who's turn is next" do
+    g = Game.new(@player1, @player2)
+    g.current.should == @player1
+  end
+  
+  it "should run to completion and declare a winner or stalemate" do
+    g = Game.new(@player1, @player2)
+    g.run
+    g.complete?.should == true
+    [@player1, @player2].should include(g.winner) unless g.stalemate?
   end
 
 end

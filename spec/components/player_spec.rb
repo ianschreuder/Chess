@@ -1,6 +1,5 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 require File.dirname(__FILE__) + '/../spec_utils'
-require File.dirname(__FILE__) + '/../../src/components/player'
 
 describe "Player" do
 
@@ -8,15 +7,11 @@ describe "Player" do
     lambda{ Player.new(:white)}.should_not raise_error(ArgumentError)
   end
 
-  it "should create 16 pieces for a new player" do
-    p = Player.new(:white)
-    p.pieces.length.should == 16
-    p = Player.new(:black)
-    p.pieces.length.should == 16
-  end
-
-  it "should put the pawns for a white player on row '2'" do
-    p = Player.new(:white).pawns[0].row.should == 2
+  it "should generate a move given a current position" do
+    p1 = Player.new(:white)
+    p2 = Player.new(:black)
+    game = Game.new(p1,p2)
+    p1.move(game.position).should_not == nil
   end
 
 end
