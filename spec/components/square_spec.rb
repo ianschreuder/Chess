@@ -20,10 +20,10 @@ describe "Square" do
   end
   
   it "should identify a square with the same coords as the same square" do
-    s1 = Square.new(:c3)
-    s2 = Square.new(33)
-    s1.should == s2
-    [s1].should == [s2]
+    Square.new(:c3).should == Square.new(33)
+    [Square.new(:c3)].should == [Square.new(33)]
+    Square.new(:a3).should == Square.new(:a3)
+    Square.new(:a4).should_not == Square.new(:a3)
   end
   
   it "should return all squares diagonal to a passed square" do
@@ -70,17 +70,44 @@ describe "Square" do
     s2.knight_squares.each{|sqr| valids.should include(sqr)}
   end
   
-  it "should throw an error if we try to evaluate the squares between two invalid path-related squares" do
+  it "should return an empty array if we try to evaluate the path between two invalid path-related squares" do
     square1 = Square.new(:a1)
     square2 = Square.new(:d5)
-    lambda{ square1.squares_between(square2)}.should raise_error(ArgumentError)
+    square1.path(square2).should == []
   end
 
-  it "should determine the squares on the path between a starting square and an ending square, not including the ending square" do
+  it "should determine the squares on a diagonal path between a start and end square, not including the ending square" do
+    square1 = Square.new(:b1)
+    square2 = Square.new(:d3)
+    valids = %w(c2).map{|val| Square.new(val.to_sym)}
+    square1.path(square2).each{|square| valids.should include(square)}
+  
     square1 = Square.new(:a1)
+    square2 = Square.new(:h8)
+    valids = %w(b2 c3 d4 e5 f6 g7).map{|val| Square.new(val.to_sym)}
+    square1.path(square2).each{|square| valids.should include(square)}
+  
+    square1 = Square.new(:e8)
+    square2 = Square.new(:a4)
+    valids = %w(d7 c6 b5).map{|val| Square.new(val.to_sym)}
+    square1.path(square2).each{|square| valids.should include(square)}
+  end
+  
+  it "should determine the squares on a straight path between a start and end square, not including the ending square" do
+    square1 = Square.new(:b1)
     square2 = Square.new(:e1)
-    valids = %w(b2 c3 d4).map{|val| Square.new(val.to_sym)}
-    square1.squares_between(square2).each{|square| valids.should include(square)}
+    valids = %w(c1 d1).map{|val| Square.new(val.to_sym)}
+    square1.path(square2).each{|square| valids.should include(square)}
+  
+    square1 = Square.new(:b1)
+    square2 = Square.new(:b5)
+    valids = %w(b2 b3 b4).map{|val| Square.new(val.to_sym)}
+    square1.path(square2).each{|square| valids.should include(square)}
+  
+    square1 = Square.new(:a4)
+    square2 = Square.new(:a1)
+    valids = %w(a2 a3).map{|val| Square.new(val.to_sym)}
+    square1.path(square2).each{|square| valids.should include(square)}
   end
   
 end

@@ -36,17 +36,16 @@ class Square
     (self.row - other.row).abs == (self.col - other.col).abs
   end
   
-  def squares_between(other)
-    raise ArgumentError, "Invalid squares for path evaluation" unless self.horizontal?(other) || self.diagonal?(other)
-    if self.horizontal?(other)
-      return horizontal_between(other)
-    else
-    end
-  end
-
   def ==(other)
     return false unless other && other.is_a?(Square)
     (self.row == other.row && self.col == other.col)
+  end
+  
+  # returns the squares along the path between two points, either diagonal or horizontal
+  def path(other)
+    return [] if ((row != other.row && col != other.col) && (row-other.row).abs != (col-other.col).abs)
+    return straight_path(other) if (row == other.row || col == other.col)
+    return diagonal_path(other) if (row - other.row).abs == (col - other.col).abs
   end
   
   def to_s
@@ -54,10 +53,18 @@ class Square
   end
   
   private
+
+  def straight_path(other)
+    return false unless row == other.row || col == other.col
+    return Square.squares.select{|s| s.row == row && s.col < [col,other.col].max && s.col > [col,other.col].min} if (row == other.row)
+    return Square.squares.select{|s| s.col == col && s.row < [row,other.row].max && s.row > [row,other.row].min} if (col == other.col)
+  end
   
-  def horizontal_between(other)
-    return [] unless (self.row - other.row).abs > 1 || (self.col - other.col).abs > 1
-    return rows_between(other) if self.row == other.row
+  def diagonal_path(other)
+    return false unless (row - other.row).abs == (col - other.col).abs
+    return Square.squares.select{|s| s.row < [row,other.row].max && s.row > [row,other.row].min && 
+                                     s.col < [col,other.col].max && s.col > [col,other.col].min &&
+                                     (row - s.row).abs == (col - s.col).abs}
   end
   
   def to_letter(num)
