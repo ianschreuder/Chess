@@ -1,29 +1,15 @@
 class Square
-  attr_reader :row, :col
+  attr_reader :col, :row
   
+  # coords are specified as column,row
   def initialize(coord)
     @col = ((a = coord.to_s.slice(0..0)).to_i == 0) ? to_num(a) : a.to_i
     @row = coord.to_s.slice(1..1).to_i
   end
 
-  def self.squares
-    cols = %w(1 2 3 4 5 6 7 8) # these would be a, b, ... but easier with numbers
-    rows = %w(1 2 3 4 5 6 7 8)
-    all = []
-    cols.each{|col| rows.each{|row| all << Square.new("#{col}#{row}".to_sym)}}
-    return all
-  end
-
-  def diagonals
-    Square.squares.select{|square| self.diagonal?(square)}.reject{|square| square == self} 
-  end
-
-  def horizontals
-    Square.squares.select{|square| self.horizontal?(square)}.reject{|square| square == self} 
-  end
-
-  def knight_squares
-    Square.squares.select{|square| ((square.row - self.row).abs == 1 && (square.col - self.col).abs == 2) || ((square.row - self.row).abs == 2 && (square.col - self.col).abs == 1) }
+  def ==(other)
+    return false unless other && other.is_a?(Square)
+    (self.row == other.row && self.col == other.col)
   end
 
   def horizontal?(other)
@@ -36,37 +22,16 @@ class Square
     (self.row - other.row).abs == (self.col - other.col).abs
   end
   
-  def ==(other)
-    return false unless other && other.is_a?(Square)
-    (self.row == other.row && self.col == other.col)
-  end
-  
-  # returns the squares along the path between two points, either diagonal or horizontal
-  def path(other)
-    return [] if ((row != other.row && col != other.col) && (row-other.row).abs != (col-other.col).abs)
-    return straight_path(other) if (row == other.row || col == other.col)
-    return diagonal_path(other) if (row - other.row).abs == (col - other.col).abs
-  end
-  
   def to_s
     ":#{to_letter(col)}#{row}"
   end
-  
+
+  def coord_key
+    "#{to_letter(col)}#{row}".to_sym
+  end
+
   private
 
-  def straight_path(other)
-    return false unless row == other.row || col == other.col
-    return Square.squares.select{|s| s.row == row && s.col < [col,other.col].max && s.col > [col,other.col].min} if (row == other.row)
-    return Square.squares.select{|s| s.col == col && s.row < [row,other.row].max && s.row > [row,other.row].min} if (col == other.col)
-  end
-  
-  def diagonal_path(other)
-    return false unless (row - other.row).abs == (col - other.col).abs
-    return Square.squares.select{|s| s.row < [row,other.row].max && s.row > [row,other.row].min && 
-                                     s.col < [col,other.col].max && s.col > [col,other.col].min &&
-                                     (row - s.row).abs == (col - s.col).abs}
-  end
-  
   def to_letter(num)
     case num
     when 1 then "a"

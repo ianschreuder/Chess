@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'spec/rake/spectask'
 
+task :default => [:unit_tests]
+
 Spec::Rake::SpecTask.new(:unit_tests) do |t|
   t.spec_files = Dir.glob('spec/**/*_spec.rb')
   t.spec_opts << '--format specdoc'

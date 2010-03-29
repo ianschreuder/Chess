@@ -12,26 +12,26 @@ describe "Game" do
     lambda {Game.new(@player1, @player2)}.should_not raise_error(ArgumentError)
   end
 
-  it "should have a board" do
+  it "should have a current position" do
     g = Game.new(@player1, @player2)
-    g.board.class.should == Board
+    g.current_position.class.should == Position
   end
 
   it "should have 32 pieces on a fresh board" do
     g = Game.new(@player1, @player2)
-    g.board.pieces.length.should == 32
+    g.current_position.all_pieces.length.should == 32
   end
   
   it "should know who's turn is next" do
     g = Game.new(@player1, @player2)
-    g.current.should == @player1
+    g.current_player.should == @player1
   end
   
   it "should run to completion and declare a winner or stalemate" do
     g = Game.new(@player1, @player2)
     g.run
     g.complete?.should == true
-    [@player1, @player2].should include(g.winner) unless g.stalemate?
+    [@player1, @player2].should include(g.winner) unless g.draw?
   end
 
 end
