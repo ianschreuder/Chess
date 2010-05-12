@@ -18,5 +18,11 @@ describe "Piece" do
     piece.moved?.should == true
   end
   
+  it "should be able to be removed" do
+    piece = Piece.new(:a2)
+    piece.remove
+    piece.square.should == nil
+  end
+  
 
 end

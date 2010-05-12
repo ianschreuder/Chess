@@ -1,9 +1,8 @@
 class Position
-  attr_reader :white_pieces, :black_pieces
   
-  def initialize(pieces=[])
-    @white_pieces = pieces.select{|pi| pi.color == :white}
-    @black_pieces = pieces.select{|pi| pi.color == :black}
+  def initialize(set_pieces=[])
+    @white_pieces = set_pieces.select{|pi| pi.color == :white}
+    @black_pieces = set_pieces.select{|pi| pi.color == :black}
     @moves = []
   end
 
@@ -30,12 +29,24 @@ class Position
   end
   
   def in_check?(king)
-    pieces = (king.color == :white) ? @black_pieces : @white_pieces
-    pieces.detect{|piece| piece.legal_moves(self).include?(king.square)} != nil
+    pieces = (king.color == :white) ? black_pieces : white_pieces
+    pieces.detect{|piece| piece.legal_moves(self, {:bypass_king_checks => true}).include?(king.square)} != nil
+  end
+
+  def white_pieces
+    @white_pieces.reject{|p| p.square.nil?}
+  end
+
+  def black_pieces
+    @black_pieces.reject{|p| p.square.nil?}
+  end
+
+  def pieces(color)
+    (color == :white) ? white_pieces : black_pieces
   end
 
   def all_pieces
-    @white_pieces + @black_pieces
+    white_pieces + black_pieces
   end
   
   def update_with_move(move)
@@ -47,11 +58,15 @@ class Position
     @moves.last
   end
 
-  def stalemate?(last_move)
-#     pieces = (last_move.piece.color == :white) ? @black_pieces : @white_pieces
-#     moves = pieces.map{|piece| piece.legal_moves(self,last_move)}.flatten
-# p moves
-#     moves.empty? && !pieces.detect{|piece| piece.class==King}.in_check?(self)
+  def king_for_color(color)
+    (color == :white) ? white_pieces.detect{|piece| piece.class == King} : black_pieces.detect{|piece| piece.class == King}
+  end
+  
+  def print
+    board = "8"+"  "*8+"\n7"+"  "*8+"\n6"+"  "*8+"\n5"+"  "*8+"\n4"+"  "*8+"\n3"+"  "*8+"\n2"+"  "*8+"\n1"+"  "*8+"\n  a b c d e f g h"
+    board = black_pieces.inject(board){|board, piece| idx = (((8-piece.square.row)*18)+2*piece.square.col); board = board[0,idx]+piece.letter+board[idx+1,board.length]}
+    board = white_pieces.inject(board){|board, piece| idx = (((8-piece.square.row)*18)+2*piece.square.col); board = board[0,idx]+piece.letter+board[idx+1,board.length]}
+    puts board
   end
   
 end

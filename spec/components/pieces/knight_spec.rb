@@ -24,4 +24,12 @@ describe "Knight" do
     piece1.legal_moves(Position.new([piece1, piece2]),nil).should_not include(Square.new(:d1))
   end
 
+  it "should not list squares that leave king in check as legal moves" do
+    king_w = King.new(:d4, :white)
+    knight_w = Knight.new(:d2, :white)
+    rook_b = Rook.new(:d1, :black)
+    position = Position.new([king_w, knight_w, rook_b])
+    knight_w.legal_moves(position).should == []
+  end
+
 end

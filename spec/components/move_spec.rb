@@ -7,7 +7,7 @@ describe "Move" do
     # basic move
     pawn = Pawn.new(:a2, :white)
     position = Position.new([pawn])
-    move = Move.new(position, pawn,Square.new(:a4))
+    move = Move.new(pawn, Square.new(:a4))
     move.execute
     pawn.square.to_s.should == ":a4"
     move.reset
@@ -17,7 +17,8 @@ describe "Move" do
     pawn = Pawn.new(:a2, :white)
     bishop = Bishop.new(:b3, :black)
     position = Position.new([pawn, bishop])
-    move = Move.new(position, pawn,Square.new(:b3))
+    move = Move.new(pawn, Square.new(:b3))
+    move.set_target_piece(bishop)
     move.execute
     pawn.square.to_s.should == ":b3"
     bishop.square.should == nil
@@ -26,35 +27,19 @@ describe "Move" do
     bishop.square.to_s.should == ":b3"
 
     # attack via 'en passant'
-    pawn1 = Pawn.new(:d5, :white)
-    pawn2 = Pawn.new(:e6, :black)
-    position = Position.new([pawn, bishop])
-    move = Move.new(position, pawn,Square.new(:b3))
+    pawn1 = Pawn.new(:e7, :black)
+    pawn2 = Pawn.new(:d5, :white)
+    position = Position.new([pawn1, pawn2])
+    move = Move.new(pawn1, Square.new(:e5))
+    position.update_with_move(move)
+    move = Move.new(pawn2, Square.new(:e6))
+    move.set_target_piece(pawn1)
     move.execute
-    pawn.square.to_s.should == ":b3"
-    bishop.square.should == nil
+    pawn2.square.to_s.should == ":e6"
+    pawn1.square.should == nil
     move.reset
-    pawn.square.to_s.should == ":a2"
-    bishop.square.to_s.should == ":b3"
+    pawn2.square.to_s.should == ":d5"
+    pawn1.square.to_s.should == ":e5"
   end
   
-  it "should know whether it created an 'en passant' situation" do
-    pawn = Pawn.new(:a2)
-    position = Position.new([pawn])
-    move = Move.new(position, pawn, Square.new(:a4))
-    move.creates_en_passant?.should == true
-
-    pawn = Pawn.new(:a2)
-    position = Position.new([pawn])
-    move = Move.new(position, pawn, Square.new(:a3))
-    move.creates_en_passant?.should == false
-  end
-  
-  it "should know what square is the legitimate 'en passant' target square" do
-    pawn = Pawn.new(:a2)
-    position = Position.new([pawn])
-    move = Move.new(position, pawn, Square.new(:a4))
-    move.en_passant_square.should == Square.new(:a3)
-  end
-
 end

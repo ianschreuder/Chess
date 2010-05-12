@@ -29,5 +29,13 @@ describe "Bishop" do
     piece3 = Pawn.new(:d2, :white)
     piece1.legal_moves(Position.new([piece1, piece2, piece3]),nil).should_not include(Square.new(:e3))
   end
+  
+  it "should not list squares that leave king in check as legal moves" do
+    king_w = King.new(:a1, :white)
+    bish_w = Bishop.new(:c1, :white)
+    rook_b = Rook.new(:f1, :black)
+    position = Position.new([king_w, bish_w, rook_b])
+    bish_w.legal_moves(position).should == []
+  end
 
 end

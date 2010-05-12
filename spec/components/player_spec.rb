@@ -8,10 +8,9 @@ describe "Player" do
   end
 
   it "should generate a move given a current position" do
+    pawn = Pawn.new(:a2)
     p1 = Player.new(:white)
-    p2 = Player.new(:black)
-    game = Game.new(p1,p2)
-    p1.move(game.position).should_not == nil
+    p1.move(Position.new([pawn])).should_not == nil
   end
 
 end

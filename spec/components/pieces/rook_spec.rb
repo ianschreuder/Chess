@@ -29,4 +29,21 @@ describe "Rook" do
     piece1.legal_moves(Position.new([piece1, piece2]),nil).should_not include(Square.new(:c3))
   end
 
+  it "should not list squares that leave king in check as legal moves" do
+    king_w = King.new(:a1, :white)                             # 3     b
+    rook_w = Rook.new(:b2, :white)                             # 2   r   
+    bish_b = Bishop.new(:c3, :black)                           # 1 K             
+    position = Position.new([king_w, rook_w, bish_b])          #   a b c d e f g h
+    rook_w.legal_moves(position).should == []                  
+  end
+
+  it "should recognize when it's own color piece is blocking it from putting a king in check" do
+    king_w = King.new(:a1, :white)                             # 3     
+    rook_b = Rook.new(:e1, :black)                             # 2      
+    bish_b = Bishop.new(:c1, :black)                           # 1 K   b   r           
+    position = Position.new([king_w, rook_b, bish_b])          #   a b c d e f g h
+    
+    position.in_check?(king_w).should == false
+  end
+
 end

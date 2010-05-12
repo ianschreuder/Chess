@@ -23,7 +23,7 @@ describe "Pawn" do
     piece.legal_moves(Position.new([piece]),nil).length.should == 0
     piece.legal_moves(Position.new([piece]),nil).should_not include(Square.new(:a4))
   end
-
+  
   it "should list a square with a opposite-color piece on it as a valid square" do
     piece1 = Pawn.new(:a2, :white)
     piece2 = Pawn.new(:b3, :black)
@@ -58,7 +58,7 @@ describe "Pawn" do
     p3 = Bishop.new(:b3, :white)
     valid_squares = %w(c4 c3 d3).map{|coord| Square.new(coord)}
     p1.legal_moves(Position.new([p1,p2,p3])).each{|square| valid_squares.should include(square)}
-
+  
     p1 = Pawn.new(:d3, :black)
     p2 = Knight.new(:d2, :black)
     p3 = Bishop.new(:c3, :white)
@@ -67,25 +67,55 @@ describe "Pawn" do
     p1.legal_moves(Position.new([p1,p2,p3]),move).each{|square| valid_squares.should include(square)}
     
   end
-
+  
   it "should maintain 'en passant' logic and correctly list a square matching those conditions as a legal move" do
     p1 = Pawn.new(:b5, :white)
     p2 = Pawn.new(:c7, :black)
     position = Position.new([p1,p2])
     move = Move.new(p2, Square.new(:c5))
-    p1.attackable?(Square.new(:c6), position, move).should == true
-
+    position.update_with_move(move)
+    p1.legal_moves(position).should include(Square.new(:c6))
+  
     p1 = Pawn.new(:b5, :white)
     p2 = Pawn.new(:a7, :black)
     position = Position.new([p1,p2])
     move = Move.new(p2, Square.new(:a5))
-    p1.attackable?(Square.new(:a6), position, move).should == true
-
+    position.update_with_move(move)
+    p1.legal_moves(position).should include(Square.new(:a6))
+    
     p1 = Pawn.new(:c5, :white)
     p2 = Pawn.new(:a7, :black)
     position = Position.new([p1,p2])
     move = Move.new(p2, Square.new(:a5))
-    p1.attackable?(Square.new(:a6), position, move).should == false
+    p1.legal_moves(position).should_not include(Square.new(:a6))
+  end
+
+  it "should not list squares that leave king in check as legal moves" do
+    king_w = King.new(:d1, :white)
+    pawn_w = Pawn.new(:c2, :white)
+    bish_b = Bishop.new(:b3, :black)
+    position = Position.new([king_w, pawn_w, bish_b])
+    pawn_w.legal_moves(position).should == [Square.new(:b3)]
+    
+    # test en passant                                              # 8      
+    king_w = King.new(:f5, :white)                                 # 7     . 
+    pawn_w = Pawn.new(:d5, :white)                                 # 6       
+    pawn_b = Pawn.new(:c7, :black)                                 # 5 R   P p   k
+    rook_b = Rook.new(:a5, :black)                                 # 4
+    last_move = Move.new(pawn_b, Square.new(:c5))                  # 3      
+    position = Position.new([king_w, pawn_w, pawn_b, rook_b])      # 2     
+    position.update_with_move(last_move)                           # 1       
+    pawn_w.legal_moves(position).should == [Square.new(:d6)]       #   a b c d e f g h
+
+    # test en passant x2                                           # 8      
+    king_w = King.new(:d4, :white)                                 # 7     . 
+    pawn_w = Pawn.new(:d5, :white)                                 # 6       
+    pawn_b = Pawn.new(:c7, :black)                                 # 5     P p   
+    last_move = Move.new(pawn_b, Square.new(:c5))                  # 4       k
+    position = Position.new([king_w, pawn_w, pawn_b])              # 3     
+    position.update_with_move(last_move)                           # 2       
+    pawn_w.legal_moves(position).should == [Square.new(:c6)]       #   a b c d e f g h
+
   end
 
 end

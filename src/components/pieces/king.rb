@@ -1,6 +1,6 @@
 class King < Piece
 
-  def legal_moves(position, last_move=nil)
+  def legal_moves(position, options={})
     squares = Board.squares.reject{|s| (s.row - @square.row).abs > 1} # can't move more than 1 in vertical direction
     squares.reject!{|s| (s.col - @square.col).abs > 2} # can't move more than 2 sideways, ever
     squares.reject!{|s| (s.col - @square.col).abs > 1} if moved? # can't move more than 1 if already had move
@@ -8,13 +8,9 @@ class King < Piece
     squares.reject!{|s| position.occupier(s) != nil && position.occupier(s).color == @color}
     squares.reject!{|s| (s.col - @square.col).abs == 2 && !legal_castle?(position, s)}
 
-    squares.reject!{|s| position.places_king_in_check?(Move.new(self,s))}
+    squares.reject!{|s| places_in_check?(position, s)} unless (options && options[:bypass_king_checks]==true)
 
     squares
-  end
-
-  def in_check?(position)
-    return false
   end
 
   private
@@ -24,20 +20,9 @@ class King < Piece
     rook = (@square.col > target.col) ? position.occupier(Square.new("a#{@square.row}")) : position.occupier(Square.new("h#{@square.row}"))
     return false if rook.nil? || rook.moved?
     return false if position.blocked?(@square,rook.square)
-
-    return false if in_check?(position, @square)
-    return false if in_check?(Board.path(@square,target)[0])
-
-
+    return false if places_in_check?(position, @square)
+    return false if places_in_check?(position, Board.path(@square,target)[0])
     return true
   end
   
-  def in_check?(position, target)
-    position.piece_set
-    @square = target
-    in_check = position.in_check?(self)
-    position.piece_reset
-    return in_check
-  end
-
 end
