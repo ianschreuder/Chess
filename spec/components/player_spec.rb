@@ -1,5 +1,4 @@
 require File.dirname(__FILE__) + '/../spec_helper'
-require File.dirname(__FILE__) + '/../spec_utils'
 
 describe "Player" do
 
@@ -10,7 +9,7 @@ describe "Player" do
   it "should generate a move given a current position" do
     pawn = Pawn.new(:a2)
     p1 = Player.new(:white)
-    p1.move(Position.new([pawn])).should_not == nil
+    p1.next_move(Position.new([pawn])).should_not == nil
   end
 
 end

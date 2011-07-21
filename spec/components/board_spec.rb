@@ -1,84 +1,88 @@
 require File.dirname(__FILE__) + '/../spec_helper'
-require File.dirname(__FILE__) + '/../spec_utils'
 
 describe "Board" do
 
   it "should return all squares on the board" do
-    Board.squares.length.should == 64
-    Board.squares[20].is_a?(Square).should == true
+    Board.new.squares.length.should == 64
   end
   
   it "should return all squares diagonal to a passed square" do
-    s1 = Square.new(:a1)
-    valids = %w(b2 c3 d4 e5 f6 g7 h8).map{|val| Square.new(val.to_sym)}
-    Board.diagonals(s1).each{|sqr| valids.should include(sqr)}
-    s2 = Square.new(:c4)
-    valids = %w(a2 b3 d5 e6 f7 g8 a6 b5 d3 e2 f1).map{|val| Square.new(val.to_sym)}
-    Board.diagonals(s2).each{|sqr| valids.should include(sqr)}
+    board = Board.new
+    s1 = board.square_at(0,0)
+    valids = [[1,1], [2,2], [3,3], [4,4], [5,5], [6,6], [7,7]].map{|val| board.square_at(val[0], val[1])}
+    board.diagonals(s1).each{|sqr| valids.should include(sqr) }
+
+    s2 = board.square_at(2,3)
+    valids = [[0,1], [1,2], [3,4], [4,5], [5,6], [6,7], [0,5], [1,4], [3,2], [4,1], [5,0]].map{|val| board.square_at(val[0], val[1])}
+    board.diagonals(s2).each{|sqr| valids.should include(sqr) }
   end
   
-  it "should return all squares horizontal to a passed square" do
-    s1 = Square.new(:b2)
-    valids = %w(a2 c2 d2 e2 f2 g2 h2 b1 b3 b4 b5 b6 b7 b8).map{|val| Square.new(val.to_sym)}
-    Board.horizontals(s1).each{|sqr| valids.should include(sqr)}
+  it "should return all squares in a straight line to a passed square" do
+    board = Board.new
+    s1 = board.square_at(1,1)
+    valids = [[0,1], [2,1], [3,1], [4,1], [5,1], [6,1], [7,1], [1,0], [1,2], [1,3], [1,4], [1,5], [1,6], [1,7]].map{|val| board.square_at(val[0], val[1])}
+    board.straights(s1).each{|sqr| valids.should include(sqr) }
   end
   
   it "should return all squares that match a knight maneuver to a passed square" do
-    s1 = Square.new(:b2)
-    valids = %w(a4 c4 d3 d1).map{|val| Square.new(val.to_sym)}
-    Board.knight_squares(s1).each{|sqr| valids.should include(sqr)}
-    s2 = Square.new(:d4)
-    valids = %w(b3 b5 c2 c6 e2 e6 f3 f5).map{|val| Square.new(val.to_sym)}
-    Board.knight_squares(s2).each{|sqr| valids.should include(sqr)}
+    board = Board.new
+    s1 = board.square_at(1,1)
+    valids = [[0,3], [2,3], [3,2], [3,0]].map{|val| board.square_at(val[0], val[1])}
+    board.knight_squares(s1).each{|sqr| valids.should include(sqr) }
+
+    s2 = board.square_at(3,3)
+    valids = [[1,2], [1,4], [2,1], [2,5], [4,1], [4,5], [5,2], [5,4]].map{|val| board.square_at(val[0], val[1])}
+    board.knight_squares(s2).each{|sqr| valids.should include(sqr)}
   end
   
   it "should return an empty array if we try to evaluate the path between two invalid path-related squares" do
-    square1 = Square.new(:a1)
-    square2 = Square.new(:d5)
-    Board.path(square1, square2).should == []
+    board = Board.new
+    s1 = board.square_at(0,0)
+    s2 = board.square_at(3,4)
+    board.path(s1, s2).should == []
   end
 
   it "should determine the squares on a diagonal path between a start and end square, not including the ending square" do
-    square1 = Square.new(:b1)
-    square2 = Square.new(:d3)
-    valids = %w(c2).map{|val| Square.new(val.to_sym)}
-    Board.path(square1, square2).each{|square| valids.should include(square)}
+    board = Board.new
+    square1 = board.square_at(1,0)
+    square2 = board.square_at(3,2)
+    valids = [[2,1]].map{|val| board.square_at(val[0], val[1])}
+    board.path(square1, square2).each{|square| valids.should include(square)}
   
-    square1 = Square.new(:a1)
-    square2 = Square.new(:h8)
-    valids = %w(b2 c3 d4 e5 f6 g7).map{|val| Square.new(val.to_sym)}
-    Board.path(square1, square2).each{|square| valids.should include(square)}
+    square1 = board.square_at(0,0)
+    square2 = board.square_at(7,7)
+    valids = [[1,1], [2,2], [3,3], [4,4], [5,5], [6,6]].map{|val| board.square_at(val[0], val[1])}
+    board.path(square1, square2).each{|square| valids.should include(square)}
   
-    square1 = Square.new(:e8)
-    square2 = Square.new(:a4)
-    valids = %w(d7 c6 b5).map{|val| Square.new(val.to_sym)}
-    Board.path(square1, square2).each{|square| valids.should include(square)}
+    square1 = board.square_at(4,7)
+    square2 = board.square_at(0,3)
+    valids = [[3,6], [2,5], [1,4]].map{|val| board.square_at(val[0], val[1])}
+    board.path(square1, square2).each{|square| valids.should include(square)}
   end
   
   it "should determine the squares on a straight path between a start and end square, not including the ending square" do
-    square1 = Square.new(:b1)
-    square2 = Square.new(:e1)
-    valids = %w(c1 d1).map{|val| Square.new(val.to_sym)}
-    Board.path(square1, square2).each{|square| valids.should include(square)}
+    board = Board.new
+    square1 = board.square_at(1,0)
+    square2 = board.square_at(4,0)
+    valids = [[2,0], [3,0]].map{|val| board.square_at(val[0], val[1])}
+    board.path(square1, square2).each{|square| valids.should include(square)}
   
-    square1 = Square.new(:b1)
-    square2 = Square.new(:b5)
-    valids = %w(b2 b3 b4).map{|val| Square.new(val.to_sym)}
-    Board.path(square1,square2).each{|square| valids.should include(square)}
+    square1 = board.square_at(1,0)
+    square2 = board.square_at(1,4)
+    valids = [[1,1], [1,2], [1,3]].map{|val| board.square_at(val[0], val[1])}
+    board.path(square1,square2).each{|square| valids.should include(square)}
   
-    square1 = Square.new(:a4)
-    square2 = Square.new(:a1)
-    valids = %w(a2 a3).map{|val| Square.new(val.to_sym)}
-    Board.path(square1, square2).each{|square| valids.should include(square)}
-  end
-  
-  it "should only create the squares once" do
-    Board.squares.object_id.should == Board.squares.object_id
+    square1 = board.square_at(0,3)
+    square2 = board.square_at(0,0)
+    valids = [[0,1], [0,2]].map{|val| board.square_at(val[0], val[1])}
+    board.path(square1, square2).each{|square| valids.should include(square)}
   end
   
   it "should find the square related to the passed coordinate key" do
-    square = Square.new(:c7)
-    Board.square_at(square.coord_key).coord_key.should == :c7
+    board = Board.new
+    square = board.square_at(2,6)
+    square.x.should == 2
+    square.y.should == 6
   end
 
 

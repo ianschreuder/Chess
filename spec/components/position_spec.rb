@@ -1,5 +1,4 @@
 require File.dirname(__FILE__) + '/../spec_helper'
-require File.dirname(__FILE__) + '/../spec_utils'
 
 describe "Position" do
 
@@ -18,13 +17,11 @@ describe "Position" do
     position.white_pieces.length.should == 16
   end
   
-  # it "should provide 20 moves for white from a starting position" do
-  #   p1 = Player.new(:white)
-  #   p2 = Player.new(:black)
-  #   position = Position.new
-  #   position.new_game_setup
-  #   position.white_pieces.map{|piece| piece.legal_moves(position)}.flatten.length.should == 20
-  # end
+  it "should provide 20 moves for white from a starting position" do
+    position = Position.new
+    position.new_game_setup
+    position.white_pieces.map{|piece| piece.legal_moves(position)}.flatten.length.should == 20
+  end
   
   it "should be able to determine whether a target square is blocked by another piece" do
     # horizontal

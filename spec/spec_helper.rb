@@ -1,10 +1,11 @@
-require 'spec'
-require 'spec/autorun'
+require 'rspec'
+
 Dir[File.dirname(__FILE__) + '/../src/**/*.rb'].each {|file| require file }
 
-Spec::Runner.configure do |config|
-
+RSpec.configure do |config|
+  config.mock_with :rspec
 end
+
 
 
 
