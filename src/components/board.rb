@@ -1,10 +1,19 @@
 class Board
-  attr_accessor :squares
+  attr_reader :squares, :p1, :p2
+  attr_reader :moves
   
-  def initialize
-    @squares = (0..7).inject([]){|arr, i| (0..7).each{|j| arr << Square.new(i,j)}; arr}
+  def initialize(p1,p2)
+    @squares = create_all_squares
+    @p1, @p2 = p1, p2
+    @p1.place_on_board(self,POSITION_ONE)
+    @p2.place_on_board(self,POSITION_TW0)
+    @moves = []
+    init_position
   end
-  def square_at(x,y); return @squares.detect{|s| s.x==x && s.y==y}; end
+  def square_at(x=nil, y=nil, sym: nil)
+    x,y = parse_symbol(sym) if sym
+    return @squares.detect{|s| s.at?(x,y) }
+  end
   def diagonals(sqr); @squares.select{|s| s.diagonal?(sqr)}; end
   def straights(sqr); @squares.select{|s| s.straight?(sqr)}; end
   def knight_squares(sqr); @squares.select{|s| ((s.x - sqr.x).abs == 1 && (s.y - sqr.y).abs == 2) || ((s.x - sqr.x).abs == 2 && (s.y - sqr.y).abs == 1) }; end
@@ -24,6 +33,63 @@ class Board
                                      s.y < [s1.y,s2.y].max && s.y > [s1.y,s2.y].min &&
                                      (s1.x - s.x).abs == (s1.y - s.y).abs}
   end
+  def occupier(square)
+    piece = @pieces.detect{|piece| piece.square == square}
+    piece = last_move.piece if piece.nil? && square == en_passant_square
+    piece
+  end
+  def blocked?(source, target)
+    squares = path(source,target)
+    squares.detect{|sq| @pieces.detect{|p| p.square == sq}} != nil
+  end
+  def in_check?(king)
+    pieces = (king.color == @p1.color) ? @p1.pieces : @p2.pieces
+    pieces.detect{|piece| piece.legal_moves(true).include?(king.square)} != nil
+  end
+  def king_for_color(color)
+    pieces = p1.color == color ? p1.pieces : p2.pieces
+    pieces.detect{|piece| piece.is_a?(King) }
+  end
+  def en_passant_square
+    return nil unless (last_move) && (last_move.piece.class == Pawn) && (last_move.piece_square_start.row - last_move.piece_square_end.row).abs == 2
+    return path(last_move.piece_square_start, last_move.piece_square_end).first
+  end
 
+  def last_move; @moves.last; end
+
+  def print
+    board = 8.times.inject(""){|str,i| str << "#{8-i}|                \n"; str}
+    board += "   a b c d e f g h \n"
+    @pieces.each{|piece| idx= 19*(7-piece.square.y) + (2*piece.square.x) + 3; board[(idx..idx)]=piece.letter }
+    puts board
+  end
+
+private
+
+  def parse_symbol(sym)
+    col = ('a'..'g').to_a.index(sym.to_s.slice(0,1).downcase)
+    row = sym.to_s.slice(1,1).to_i-1
+    [col,row]
+  end
+
+  def init_position
+    (0..7).each{|col| @p1.pieces << Pawn.new(@p1, square_at(col,1)) }
+    (0..7).each{|col| @p2.pieces << Pawn.new(@p2, square_at(col,6)) }
+    [0,7].each{|col|  @p1.pieces << Rook.new(@p1, square_at(col,0)) }
+    [0,7].each{|col|  @p2.pieces << Rook.new(@p2, square_at(col,7)) }
+    [1,6].each{|col|  @p1.pieces << Knight.new(@p1, square_at(col,0)) }
+    [1,6].each{|col|  @p2.pieces << Knight.new(@p2, square_at(col,7)) }
+    [2,5].each{|col|  @p1.pieces << Bishop.new(@p1, square_at(col,0)) }
+    [2,5].each{|col|  @p2.pieces << Bishop.new(@p2, square_at(col,7)) }
+    @p1.pieces << Queen.new(@p1, square_at(3,0))
+    @p2.pieces << Queen.new(@p2, square_at(3,7))
+    @p1.pieces << King.new(@p1, square_at(4,0))
+    @p2.pieces << King.new(@p2, square_at(4,7))
+    @pieces = @p1.pieces + @p2.pieces
+  end
+
+  def create_all_squares
+    (0..7).inject([]){|arr, i| (0..7).each{|j| arr << Square.new(self,i,j)}; arr}
+  end
 
 end

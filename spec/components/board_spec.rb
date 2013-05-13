@@ -5,6 +5,10 @@ describe "Board" do
   it "should return all squares on the board" do
     Board.new.squares.length.should == 64
   end
+
+  it "should return nil for a non-existant square" do
+    1.should == 2
+  end
   
   it "should return all squares diagonal to a passed square" do
     board = Board.new

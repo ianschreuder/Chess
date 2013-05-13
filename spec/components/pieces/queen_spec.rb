@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../../spec_helper'
 
 describe "Queen" do
   
-  it "should list all horizontal and diagonal squares on an empty board" do
+  it "should list all straight and diagonal squares on an empty board" do
     piece = Queen.new(:a1, :white)
     piece.legal_moves(Position.new([piece])).length.should == 21
     piece.legal_moves(Position.new([piece])).should include(Square.new(:a8))

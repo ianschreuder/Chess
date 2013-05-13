@@ -1,49 +1,49 @@
-# require File.dirname(__FILE__) + '/pieces/piece.rb'
-# Dir[File.dirname(__FILE__) + '/**/*.rb'].each {|file| require file }
-# 
+# require File.dirname(__FILE__) + '/components/pieces/piece.rb'
+# Dir['./components/**/*.rb'].map {|f| require f}
+
 # class Game
-#   attr_reader :current_position, :current_player
-# 
-#   def initialize(player1 = Player.new(:white), player2 = Player.new(:black))
-#     @player1, @player2 = player1, player2
-#     @current_position = Position.new
-#     @current_position.new_game_setup
+#   attr_reader :current_player, :board
+
+#   def initialize(player1 = nil, player2 = nil)
+#     @player1 = player1.nil? ? Player.new(WHITE) : player1
+#     @player2 = player2.nil? ? Player.new(BLACK) : player2
+#     @board = Board.new(@player1, @player2)
 #     @current_player = @player1
 #   end
-#   
+  
 #   def run
 #     while !complete? do
-#       move = @current_player.next_move(@current_position)
+#       move = @current_player.next_move
 #       @current_position.update_with_move(move)
 #       @current_player = next_player
 #     end
 #   end
-# 
+
 #   def complete?
-#     true if @current_position.moves.length > 10
+#     true if @board.moves.length > 10
 #   end
-# 
+
 #   def draw?
 #     return true if stalemate?
 #   end
-#   
+  
 #   def stalemate?
 #     return true
 #   end
-#   
+  
 #   private
-#   
+  
 #   def next_player
 #     @current_player = (@current_player == @player1) ? @player2 : @player1
 #     @current_player
 #   end
-# 
+
 # end
-# 
-# require 'perftools'
-# PerfTools::CpuProfiler.start("../../chess_profile") do
-#   Game.new.run
-# end
+
+# # require 'perftools'
+# # PerfTools::CpuProfiler.start("../../chess_profile") do
+#   # Game.new.run
+# # end
 # # a = Time.now
 # # # 30.times {Game.new.run}
 # # threads = []
