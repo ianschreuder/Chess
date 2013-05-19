@@ -19,10 +19,13 @@ class Piece
     @last_square = @square
     @square = new_square
     @moves << move
+    @board.moves << move
+    move.execute
   end
   
+  def removed?; @square.nil?; end
   def remove
-    self.square = nil
+    @square = nil
   end
   
   def remove_squares_that_place_me_in_check(squares)
@@ -47,7 +50,7 @@ class Piece
   def letter
     val = self.class.to_s.slice(0,1) unless self.class == Knight
     val = "N" if self.class == Knight
-    val = val.downcase if self.color == :white
+    val = val.downcase if self.color == WHITE
     return val
   end
 

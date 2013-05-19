@@ -2,24 +2,31 @@ require File.dirname(__FILE__) + '/../../spec_helper'
 
 describe "Piece" do
   
-  it "should determine the color automatically if we don't pass it explicitely" do
-    Piece.new(:a4).color.should == :white
-    Piece.new(:a5).color.should == :black
+  before :each do
+    @p1 = Player.new(WHITE)
+    @p2 = Player.new(BLACK)
+    @board = Board.new(@p1,@p2)
   end
-  
+
+  before :each do
+    @board.reset
+  end
+
   it "should list a newly created piece as not having moved" do
-    Piece.new(:a2).moved?.should == false
+    @board.occupier(@board.square_at(sym: :a2)).moved?.should == false
   end
   
   it "should list a moved piece as having moved" do
-    piece = Piece.new(:a2)
-    piece.move(Square.new(:a3))
+    piece = @board.occupier(@board.square_at(sym: :a2))
+    piece.move(@board.square_at(sym: :a4))
+
     piece.moved?.should == true
   end
   
   it "should be able to be removed" do
-    piece = Piece.new(:a2)
+    piece = @board.occupier(@board.square_at(sym: :a2))
     piece.remove
+    piece.removed?.should be_true
     piece.square.should == nil
   end
   

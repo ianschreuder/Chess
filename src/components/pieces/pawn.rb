@@ -1,6 +1,7 @@
 class Pawn < Piece
 
   def legal_moves(skip_king_checks=false)
+    return [] if removed? 
     squares = @board.squares.reject{|s| !forward?(s) }
     squares.reject!{|s| (s.col - @square.col).abs > 1} # can't move sideways more than 1
     squares.reject!{|s| (s.row - @square.row).abs > 2} # can't move forward more than 2

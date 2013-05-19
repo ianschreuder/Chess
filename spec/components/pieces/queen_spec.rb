@@ -2,40 +2,58 @@ require File.dirname(__FILE__) + '/../../spec_helper'
 
 describe "Queen" do
   
+  before :each do
+    @p1 = Player.new(WHITE)
+    @p2 = Player.new(BLACK)
+    @board = Board.new(@p1,@p2)
+  end
+
+  before :each do
+    @board.reset
+  end
+  
   it "should list all straight and diagonal squares on an empty board" do
-    piece = Queen.new(:a1, :white)
-    piece.legal_moves(Position.new([piece])).length.should == 21
-    piece.legal_moves(Position.new([piece])).should include(Square.new(:a8))
-    piece.legal_moves(Position.new([piece])).should include(Square.new(:h1))
-    piece.legal_moves(Position.new([piece])).should include(Square.new(:h8))
+    piece = @board.occupier(@board.square_at(sym: :d1))
+    @board.pieces.each{|p| p.remove unless p == piece}
+    piece.move(@board.square_at(sym: :a1))
+
+    piece.legal_moves.length.should == 14 + 7
+    piece.legal_moves.should include(@board.square_at(sym: :a8))
+    piece.legal_moves.should include(@board.square_at(sym: :h1))
+    piece.legal_moves.should include(@board.square_at(sym: :h8))
   end
 
   it "should list a square with a opposite-color piece on it as a valid square" do
-    piece1 = Queen.new(:a1, :white)
-    piece2 = Queen.new(:d1, :black)
-    piece1.legal_moves(Position.new([piece1, piece2])).length.should == 17
-    piece1.legal_moves(Position.new([piece1, piece2])).should include(Square.new(:d1))
+    piece1 = @board.occupier(@board.square_at(sym: :d1))
+    piece2 = @board.occupier(@board.square_at(sym: :d8))
+    @board.pieces.each{|p| p.remove unless p == piece1 or p == piece2 }
+    piece1.move(@board.square_at(sym: :a1))
+    piece2.move(@board.square_at(sym: :h8))
+
+    piece1.legal_moves.length.should == 14 + 7
+    piece1.legal_moves.should include(@board.square_at(sym: :h8))
   end
   
   it "should NOT list a square with a same-color piece on it as valid" do
-    piece1 = Queen.new(:a1, :white)
-    piece2 = Pawn.new(:d1, :white)
-    piece1.legal_moves(Position.new([piece1, piece2])).should_not include(Square.new(:d1))
-  end
+    piece1 = @board.occupier(@board.square_at(sym: :d1))
+    piece2 = @board.occupier(@board.square_at(sym: :d2))
+    @board.pieces.each{|p| p.remove unless p == piece1 or p == piece2 }
+    piece1.move(@board.square_at(sym: :a1))
+    piece2.move(@board.square_at(sym: :h8))
 
-  it "should not list a target square blocked by another piece as a valid move" do
-    piece1 = Queen.new(:c1, :white)
-    piece2 = Pawn.new(:c2, :white)
-    piece1.legal_moves(Position.new([piece1, piece2])).should_not include(Square.new(:c3))
+    piece1.legal_moves.length.should == 14 + 6
+    piece1.legal_moves.should_not include(@board.square_at(sym: :h8))
   end
 
   it "should not list squares that leave king in check as legal moves" do
-    king_w = King.new(:a8, :white)
-    queen_w = Queen.new(:d5, :white)
-    bishop_b = Bishop.new(:g2, :black)
-    position = Position.new([king_w, queen_w, bishop_b])
-    valids = [Square.new(:b7), Square.new(:c6), Square.new(:e4), Square.new(:f3), Square.new(:g2)]
-    valids.each{|valid| queen_w.legal_moves(position).should include(valid)}
+    w_queen = @board.occupier(@board.square_at(sym: :d1))
+    b_bishop = @board.occupier(@board.square_at(sym: :c8))
+    w_king = @board.occupier(@board.square_at(sym: :e1))
+    @board.pieces.each{|p| p.remove unless p == w_queen or p == w_king or p == b_bishop }
+    b_bishop.move(@board.square_at(sym: :c3))
+    w_queen.move(@board.square_at(sym: :d2))
+
+    w_queen.legal_moves.should == [@board.square_at(sym: :c3)]
   end
 
 end

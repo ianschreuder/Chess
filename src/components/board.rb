@@ -1,6 +1,6 @@
 class Board
   attr_reader :squares, :p1, :p2
-  attr_reader :moves
+  attr_reader :moves, :pieces
   
   def initialize(p1,p2)
     @squares = create_all_squares
@@ -43,7 +43,7 @@ class Board
     squares.detect{|sq| @pieces.detect{|p| p.square == sq}} != nil
   end
   def in_check?(king)
-    pieces = (king.color == @p1.color) ? @p1.pieces : @p2.pieces
+    pieces = (king.color == @p1.color) ? @p2.pieces : @p1.pieces
     pieces.detect{|piece| piece.legal_moves(true).include?(king.square)} != nil
   end
   def king_for_color(color)
@@ -64,10 +64,14 @@ class Board
     puts board
   end
 
+  def reset
+    @moves.reverse.each{|m| m.reset }
+  end
+
 private
 
   def parse_symbol(sym)
-    col = ('a'..'g').to_a.index(sym.to_s.slice(0,1).downcase)
+    col = ('a'..'h').to_a.index(sym.to_s.slice(0,1).downcase)
     row = sym.to_s.slice(1,1).to_i-1
     [col,row]
   end

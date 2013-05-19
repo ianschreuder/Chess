@@ -1,6 +1,7 @@
 class King < Piece
 
   def legal_moves(skip_king_checks=false)
+    return [] if removed? 
     squares = @board.squares.reject{|s| (s.row - @square.row).abs > 1} # can't move more than 1 in vertical direction
     squares.reject!{|s| (s.col - @square.col).abs > 2} # can't move more than 2 sideways, ever
     squares.reject!{|s| (s.col - @square.col).abs > 1} if moved? # can't move more than 1 if already had move
@@ -28,15 +29,18 @@ class King < Piece
   end
   
   def castle_through_check?(rook)
-    col = self.square.col+(rook.square.col-self.square.col).abs/(rook.square.col-self.square.col)
-    square = @board.square_at(@square.col,@square.row)
+    change = rook.square.col > @square.col ? 1 : -1
+    square = @board.square_at(@square.col + change, @square.row)
     move = Move.new(self, square)
     return places_in_check?(move)
   end
   
   def castle_into_check?(rook)
-    move = Move.new(self, rook.square)
-    move.set_ancillary_piece(rook, @square)
+    change = rook.square.col > @square.col ? 2 : -2
+    king_square = @board.square_at(@square.col + change, @square.row)
+    rook_square = @board.square_at(rook.square.col - change, rook.square.row)
+    move = Move.new(self, king_square)
+    move.set_ancillary_piece(rook, rook_square)
     return places_in_check?(move)
   end
   

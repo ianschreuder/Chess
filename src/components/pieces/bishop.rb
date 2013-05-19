@@ -1,6 +1,7 @@
 class Bishop < Piece
 
   def legal_moves(skip_king_checks=false)
+    return [] if removed? 
     squares = @board.diagonals(@square)
     squares.reject!{|target| @board.blocked?(@square, target)}
     squares.reject!{|target| @board.occupier(target) != nil && @board.occupier(target).color == @color }
