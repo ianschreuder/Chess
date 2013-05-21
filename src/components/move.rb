@@ -1,5 +1,5 @@
 class Move
-  attr_reader :piece, :piece_square_start, :piece_square_end
+  attr_reader :piece, :piece_square_start, :piece_square_end, :target
 
   def initialize(piece, target_square)
     @piece = piece
@@ -26,12 +26,12 @@ class Move
   
   def reset
     @piece.square = @piece_square_start
-    @target.square = @target_square_start if @target
+    @target.unremove(@target_square_start) if @target
     @ancillary.square = @ancillary_sqaure_start if @ancillary
   end
   
   def to_s
     "#{@piece}: #{@piece_square_start} => #{@piece_square_end}"
   end
-    
+
 end

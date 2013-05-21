@@ -8,9 +8,7 @@ class King < Piece
     squares.reject!{|s| (s.col - @square.col).abs > 1 && (s.row - @square.row).abs > 1} # can't move more than 1 diagonally
     squares.reject!{|s| @board.occupier(s) != nil && @board.occupier(s).color == @color}
     squares.reject!{|s| (s.col - @square.col).abs == 2 && !legal_castle?(s)}
-
     squares = remove_squares_that_place_me_in_check(squares) unless skip_king_checks
-
     squares
   end
 

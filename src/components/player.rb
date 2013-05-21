@@ -6,6 +6,7 @@ class Player
     @color = color
     @pieces = []
   end
+
   def place_on_board(board,position)
     @board = board
     @position = position
@@ -14,6 +15,8 @@ class Player
   def next_move
     return pure_random_move
   end
+
+  def king; pieces.detect{|p| p.is_a?(King) }; end
 
   private
 

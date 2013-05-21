@@ -15,6 +15,8 @@ class Square
   def row; @y; end
   def col; @x; end
   def at?(x,y); return (@x==x && @y==y); end
+  def to_sym; "#{('a'..'h').to_a[x]}#{y+1}".to_sym; end
+
 
 end
 

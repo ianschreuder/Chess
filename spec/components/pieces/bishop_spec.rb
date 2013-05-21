@@ -2,14 +2,13 @@ require File.dirname(__FILE__) + '/../../spec_helper'
 
 describe "Bishop" do
   
-  before :each do
+  before :all do
     @p1 = Player.new(WHITE)
     @p2 = Player.new(BLACK)
-    @board = Board.new(@p1,@p2)
   end
 
   before :each do
-    @board.reset
+    @board = Board.new(@p1,@p2)
   end
   
   it "should list all diagonal squares on an empty board" do

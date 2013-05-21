@@ -1,14 +1,13 @@
 require File.dirname(__FILE__) + '/../../spec_helper'
 
 describe "Pawn" do
-  before :each do
+  before :all do
     @p1 = Player.new(WHITE)
     @p2 = Player.new(BLACK)
-    @board = Board.new(@p1,@p2)
   end
 
   before :each do
-    @board.reset
+    @board = Board.new(@p1,@p2)
   end
 
   it "should list two forward moves for a non-moved pawn on empty board" do
@@ -29,11 +28,11 @@ describe "Pawn" do
   end
   
   it "should list a square with a opposite-color piece on it as a valid square" do
-    square_a2 = @board.square_at(sym: :a2)
-    square_a7 = @board.square_at(sym: :a7)
+    piece1 = @board.occupier(@board.square_at(sym: :a2))
+    piece2 = @board.occupier(@board.square_at(sym: :a7))
+    @board.pieces.each{|p| p.remove unless p == piece1 || p == piece2}
+
     square_b3 = @board.square_at(sym: :b3)
-    piece1 = @board.occupier(square_a2)
-    piece2 = @board.occupier(square_a7)
     piece2.move(square_b3)
     piece1.legal_moves.length.should == 3
     piece1.legal_moves.should include(square_b3)
@@ -120,26 +119,27 @@ describe "Pawn" do
   end
 
   it "should not list squares that leave king in check as legal moves" do
-    king_w = @board.occupier(@board.square_at(sym: :e1))              # 8      
-    king_w.move(@board.square_at(sym: :f5))                           # 7     . 
-    pawn_w = @board.occupier(@board.square_at(sym: :d2))              # 6       
-    pawn_w.move(@board.square_at(sym: :d5))                           # 5 R   P p   k
-    rook_b = @board.occupier(@board.square_at(sym: :a8))              # 4
-    rook_b.move(@board.square_at(sym: :a5))                           # 3      
-    pawn_b = @board.occupier(@board.square_at(sym: :c7))              # 2     
-    pawn_b.move(@board.square_at(sym: :c5))                           # 1        
-    pawn_w.legal_moves.should_not include(@board.square_at(sym: :c6)) #   a b c d e f g h
-    @board.reset
+    king_w = @board.occupier(@board.square_at(sym: :e1))              # 7     . 
+    king_w.move(@board.square_at(sym: :f5))                           # 6       
+    pawn_w = @board.occupier(@board.square_at(sym: :d2))              # 5 R   P p   k
+    pawn_w.move(@board.square_at(sym: :d5))                           # 4
+    rook_b = @board.occupier(@board.square_at(sym: :a8))              # 3      
+    rook_b.move(@board.square_at(sym: :a5))                           # 2     
+    pawn_b = @board.occupier(@board.square_at(sym: :c7))              # 1        
+    pawn_b.move(@board.square_at(sym: :c5))                           #   a b c d e f g h
+    @board.pieces.each{|p| p.remove unless p == king_w || p == pawn_w || p == rook_b || p == pawn_b }
+    pawn_w.legal_moves.should_not include(@board.square_at(sym: :c6)) 
+  end
 
-
+  it "should list the removal of attacking piece via en passant as legal move" do
     king_w = @board.occupier(@board.square_at(sym: :e1))              # 7     . 
     king_w.move(@board.square_at(sym: :d4))                           # 6       
     pawn_w = @board.occupier(@board.square_at(sym: :d2))              # 5     P p  
     pawn_w.move(@board.square_at(sym: :d5))                           # 4       k 
     pawn_b = @board.occupier(@board.square_at(sym: :c7))              # 3     
-    pawn_b.move(@board.square_at(sym: :c5))                           # 2       
-    pawn_w.legal_moves.should include(@board.square_at(sym: :c6))     #   a b c d e f g h
-
+    pawn_b.move(@board.square_at(sym: :c5))                           #   a b c d e f g h
+    @board.pieces.each{|p| p.remove unless [king_w,pawn_w,pawn_b].include?(p)}
+    pawn_w.legal_moves.should include(@board.square_at(sym: :c6))     
   end
 
 end

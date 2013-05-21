@@ -68,6 +68,25 @@ class Board
     @moves.reverse.each{|m| m.reset }
   end
 
+  def remove(piece)
+    @pieces -= [piece]
+    p1.pieces -= [piece]
+    p2.pieces -= [piece]
+  end
+  def unremove(piece)
+    @pieces += [piece]
+    p1.pieces += [piece] if piece.color == @p1.color
+    p2.pieces += [piece] if piece.color == @p2.color
+  end
+  def checkmate?(player)
+    in_check?(player.king) && player.pieces.detect{|p| p.legal_moves.length > 0}.nil?
+  end
+  def stalemate?(player)
+    (player.pieces.detect{|p| p.legal_moves.length > 0}.nil? && !in_check?(player.king)) ||
+    stalemate_by_fifty_move_rule? ||
+    stalemate_by_threefold_repetition?
+  end
+
 private
 
   def parse_symbol(sym)
@@ -76,7 +95,17 @@ private
     [col,row]
   end
 
+  def stalemate_by_fifty_move_rule?
+    @moves.length >= 50 &&
+    @moves.reverse[(0..49)].detect{|move| move.piece.is_a?(Pawn) || move.target != nil }.nil?
+  end
+
+  def stalemate_by_threefold_repetition?
+    return false
+  end
+
   def init_position
+    @p1.pieces, @p2.pieces = [],[]
     (0..7).each{|col| @p1.pieces << Pawn.new(@p1, square_at(col,1)) }
     (0..7).each{|col| @p2.pieces << Pawn.new(@p2, square_at(col,6)) }
     [0,7].each{|col|  @p1.pieces << Rook.new(@p1, square_at(col,0)) }

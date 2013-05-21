@@ -2,14 +2,13 @@ require File.dirname(__FILE__) + '/../../spec_helper'
 
 describe "King" do
 
-  before :each do
+  before :all do
     @p1 = Player.new(WHITE)
     @p2 = Player.new(BLACK)
-    @board = Board.new(@p1,@p2)
   end
 
   before :each do
-    @board.reset
+    @board = Board.new(@p1,@p2)
   end
   
   it "should list eight moves for a king (moved) on an empty board" do
@@ -21,13 +20,13 @@ describe "King" do
   end
   
   it "should list squares with opponents on them as legal moves" do
-    piece1 = @board.occupier(@board.square_at(sym: :e1))
-    piece2 = @board.occupier(@board.square_at(sym: :d8))
-    @board.pieces.each{|p| p.remove unless p == piece1 or p == piece2 }
-    piece2.move(@board.square_at(sym: :e2))
+    king_w = @board.occupier(@board.square_at(sym: :e1))
+    rook_b = @board.occupier(@board.square_at(sym: :a8))
+    @board.pieces.each{|p| p.remove unless p == king_w or p == rook_b }
+    rook_b.move(@board.square_at(sym: :e2))
 
-    piece1.legal_moves.length.should == 1
-    piece1.legal_moves.should == [@board.square_at(sym: :e2)]
+    king_w.legal_moves.length.should == 3
+    king_w.legal_moves.should include(@board.square_at(sym: :e2))
   end
   
   it "should know castling: two spaces left or right ok" do

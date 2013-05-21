@@ -26,6 +26,11 @@ class Piece
   def removed?; @square.nil?; end
   def remove
     @square = nil
+    @board.remove(self)
+  end
+  def unremove(square)
+    @square = square
+    @board.unremove(self)
   end
   
   def remove_squares_that_place_me_in_check(squares)
